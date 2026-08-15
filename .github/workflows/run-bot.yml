@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-24.04
 
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Setup Python
@@ -16,21 +16,18 @@ jobs:
         with:
           python-version: "3.11"
 
-      # Install matching Chrome + ChromeDriver from the Ubuntu runner.
-      # Do NOT use browser-actions/setup-chrome here because it can install
-      # Chrome and ChromeDriver from different version channels.
-      - name: Install matching Chrome and ChromeDriver
+      - name: Install Chromium and matching driver
         run: |
           sudo apt-get update
           sudo apt-get install -y chromium chromium-driver
 
-          echo "Browser:"
+          echo "===== Chromium ====="
           chromium --version
 
-          echo "Driver:"
+          echo "===== ChromeDriver ====="
           chromedriver --version
 
-          echo "Chromium binary:"
+          echo "===== Paths ====="
           which chromium
           which chromedriver
 
@@ -39,8 +36,15 @@ jobs:
           python -m pip install --upgrade pip
           pip install python-telegram-bot selenium
 
-      - name: Run bot
+      - name: Verify browser
+        run: |
+          /usr/bin/chromium --version
+          /usr/bin/chromedriver --version
+
+      - name: Run Telegram bot
         env:
           BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+          CHROME_BIN: /usr/bin/chromium
+          CHROMEDRIVER: /usr/bin/chromedriver
         run: |
-          python onam_bot_upi_option.py
+          python onam_bot_upi_option_fixed.py
