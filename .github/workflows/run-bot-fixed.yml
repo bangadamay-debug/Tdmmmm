@@ -1,0 +1,46 @@
+name: Run Telegram Bot
+
+on:
+  workflow_dispatch:
+
+jobs:
+  run-bot:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      # Install matching Chrome + ChromeDriver from the Ubuntu runner.
+      # Do NOT use browser-actions/setup-chrome here because it can install
+      # Chrome and ChromeDriver from different version channels.
+      - name: Install matching Chrome and ChromeDriver
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y chromium chromium-driver
+
+          echo "Browser:"
+          chromium --version
+
+          echo "Driver:"
+          chromedriver --version
+
+          echo "Chromium binary:"
+          which chromium
+          which chromedriver
+
+      - name: Install Python packages
+        run: |
+          python -m pip install --upgrade pip
+          pip install python-telegram-bot selenium
+
+      - name: Run bot
+        env:
+          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+        run: |
+          python onam_bot_upi_option.py
