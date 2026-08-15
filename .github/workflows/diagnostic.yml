@@ -1,0 +1,36 @@
+name: One-shot Selenium diagnostic
+
+on:
+  workflow_dispatch:
+
+jobs:
+  diagnostic:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Set up Chrome
+        uses: browser-actions/setup-chrome@v1
+        with:
+          chrome-version: stable
+
+      - name: Install Selenium
+        run: python -m pip install --upgrade pip selenium
+
+      - name: Run diagnostic once
+        run: python onam_bot_diagnostic.py
+
+      - name: Upload Selenium diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: selenium-diagnostics
+          path: diagnostics/
+          if-no-files-found: warn
